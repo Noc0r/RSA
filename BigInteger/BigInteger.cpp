@@ -1,14 +1,17 @@
 #pragma once
 #include "BigInteger.h"
 
-const short int arifmSystemBase = 10;
+const int arifmSystemBase = 1000000000;
 
 void BigInteger::createVector(long long i)
 {
+    sign = false;
+    if (i < 0)
+        sign = true;
     do
     {
-        nums.push_back(i % 10);
-        i /= 10;
+        nums.push_back(i % arifmSystemBase);
+        i /= arifmSystemBase;
     } while (i > 0);
 }
 
@@ -27,17 +30,24 @@ BigInteger::BigInteger(long long i)
     createVector(i);
 }
 
-BigInteger::BigInteger(vector<char> vec) : nums(vec)
+BigInteger::BigInteger(vector<unsigned int> vec) : nums(vec), sign(false)
 {
 }
 
 void BigInteger::createFromString(string str)
 {
     nums.clear();
-    for (auto i = str.rbegin(); i != str.rend(); i++)
+    int begin = 0;
+    if (str[0] == '-')
     {
-        nums.push_back(*i - '0');
+        sign = true;
+        begin = 1;
     }
+    for (int i = str.length(); i > begin; i -= 9)
+        if (i < 9)
+            nums.push_back(atoi(str.substr(begin, i).c_str()));
+        else
+            nums.push_back(atoi(str.substr(i - 9, 9).c_str()));
 }
 
 BigInteger::BigInteger(string str)
@@ -45,11 +55,11 @@ BigInteger::BigInteger(string str)
     createFromString(str);
 }
 
-BigInteger::BigInteger(BigInteger const &bi) : nums(bi.getVector())
+BigInteger::BigInteger(BigInteger const &bi) : nums(bi.getVector()), sign(bi.sign)
 {
 }
 
-vector<char> BigInteger::getVector() const
+vector<unsigned int> BigInteger::getVector() const
 {
     return nums;
 }
@@ -62,37 +72,19 @@ void BigInteger::trim()
 
 BigInteger BigInteger::sum(BigInteger const &val) const
 {
-    if (this->nums.size() < val.getVector().size())
-        return val.sum(*this);
-    vector<char> vec;
-    vec.resize(nums.size() + 1);
-    for (size_t i = 0; i < val.getVector().size(); i++)
+    BigInteger res(*this);
+    int needAdd = 0;
+    for (size_t i = 0; i < max(res.nums.size(), val.nums.size()) || needAdd; ++i)
     {
-        vec[i] += nums[i] + val.getVector()[i];
-        if (vec[i] >= arifmSystemBase)
-        {
-            vec[i] %= arifmSystemBase;
-            ++vec[i + 1];
-        }
+        if (i == nums.size())
+            res.nums.push_back(0);
+        res.nums[i] += needAdd + (i < val.nums.size() ? val.nums[i] : 0);
+        needAdd = (res.nums[i] >= arifmSystemBase);
+        if (needAdd)
+            res.nums[i] -= arifmSystemBase;
     }
-    for (size_t i = val.getVector().size(); i < nums.size(); i++)
-    {
-        vec[i] += nums[i];
-        if (vec[i] >= arifmSystemBase)
-        {
-            vec[i] %= arifmSystemBase;
-            ++vec[i + 1];
-        }
-    }
-    BigInteger res(vec);
     res.trim();
     return res;
-}
-
-void BigInteger::addVector(vector<char> source, vector<char> &dist) const
-{
-    for (size_t i = 0; i < source.size(); i++)
-        dist.push_back(source[i]);
 }
 
 void BigInteger::resize(int size)
@@ -100,41 +92,30 @@ void BigInteger::resize(int size)
     nums.resize(size);
 }
 
-BigInteger BigInteger::mulToChar(char c) const
+BigInteger BigInteger::mulToInt(long long c) const
 {
-    BigInteger res(*this);
-    res.nums.push_back(0);
-    char needAdd = 0;
-    for (size_t i = 0; i < res.nums.size(); i++)
-    {
-        res.nums[i] *= c;
-        res.nums[i] += needAdd;
-        needAdd = res.nums[i] / arifmSystemBase;
-        res.nums[i] %= arifmSystemBase;
-    }
-    res.trim();
-    return res;
+    BigInteger sec(c);
+    return this->mul(sec);
 }
 
 BigInteger BigInteger::mul(BigInteger const &val) const
 {
     BigInteger res(0);
+    res.sign = sign ^ sign;
     res.resize(nums.size() + val.getVector().size());
-    for (int i = 0; i < val.getVector().size(); i++)
-    {
-        vector<char> mul = this->mulToChar(val.getVector()[i]).getVector();
-        vector<char> elem;
-        for (int j = 0; j < i; j++)
-            elem.push_back(0);
-        addVector(mul, elem);
-        BigInteger b(elem);
-        res = res.sum(b);
-    }
+    for (size_t i = 0; i < nums.size(); ++i)
+        for (size_t j = 0, needAdd = 0; j < val.nums.size() || needAdd; ++j)
+        {
+            long long tmp = (j < val.nums.size() ? val.nums[j] : 0);
+            long long cur = res.nums[i + j] + nums[i] * 1ll * tmp + needAdd;
+            res.nums[i + j] = int(cur % arifmSystemBase);
+            needAdd = int(cur / arifmSystemBase);
+        }
     res.trim();
     return res;
 }
 
-BigInteger BigInteger::inverse(BigInteger m)
+/*BigInteger BigInteger::inverse(BigInteger m)
 {
     BigInteger t(1);
     BigInteger r(m);
@@ -159,18 +140,15 @@ BigInteger BigInteger::inverse(BigInteger m)
     if (t < 0)
         t += m;
     return t;
-}
+}*/
 
 BigInteger BigInteger::operator*(long long val) const
 {
-    BigInteger res(val);
-    BigInteger answ = res.mul(*this);
-    return answ;
+    return mulToInt(val);
 }
 
 istream &operator>>(istream &s, BigInteger b)
 {
-    //TO DO
     string str;
     s >> str;
     b.createFromString(str);
@@ -178,9 +156,7 @@ istream &operator>>(istream &s, BigInteger b)
 }
 ostream &operator<<(ostream &s, BigInteger b)
 {
-    string str = "";
     for (int i = b.getVector().size() - 1; i >= 0; i--)
-        str += (char)('0' + b.getVector()[i]);
-    s << str;
+        s << b.getVector()[i];
     return s;
 }
