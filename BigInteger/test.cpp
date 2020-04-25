@@ -5,7 +5,8 @@ using namespace std;
 
 int main()
 {
-    BigInteger a(1000);
+    BigInteger a((-1000));
     BigInteger b("3451238294728329382803");
-    cout << (a.mul(b));
+    cout << (a.mul(b)) << endl;
+    cout << (b.sub(a)) << endl;
 }

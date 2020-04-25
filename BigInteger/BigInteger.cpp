@@ -7,7 +7,10 @@ void BigInteger::createVector(long long i)
 {
     sign = false;
     if (i < 0)
+    {
         sign = true;
+        i *= -1;
+    }
     do
     {
         nums.push_back(i % arifmSystemBase);
@@ -38,6 +41,7 @@ void BigInteger::createFromString(string str)
 {
     nums.clear();
     int begin = 0;
+    sign = false;
     if (str[0] == '-')
     {
         sign = true;
@@ -73,18 +77,31 @@ void BigInteger::trim()
 BigInteger BigInteger::sum(BigInteger const &val) const
 {
     BigInteger res(*this);
+    int sign_mul = val.sign ? -1 : 1;
     int needAdd = 0;
     for (size_t i = 0; i < max(res.nums.size(), val.nums.size()) || needAdd; ++i)
     {
-        if (i == nums.size())
+        if (i == res.nums.size())
             res.nums.push_back(0);
-        res.nums[i] += needAdd + (i < val.nums.size() ? val.nums[i] : 0);
-        needAdd = (res.nums[i] >= arifmSystemBase);
+        long long tmp = (i < val.nums.size() ? val.nums[i] : 0);
+        res.nums[i] += sign_mul * (needAdd + tmp);
+        needAdd = (res.nums[i] >= arifmSystemBase) || (res.nums[i] <= 0);
         if (needAdd)
-            res.nums[i] -= arifmSystemBase;
+            res.nums[i] -= sign_mul * arifmSystemBase;
     }
     res.trim();
     return res;
+}
+
+BigInteger BigInteger::sub(BigInteger const &val) const
+{
+    BigInteger copy(val);
+    copy.sign ^= true;
+    return sum(copy);
+}
+
+BigInteger BigInteger::div(BigInteger const &val) const
+{
 }
 
 void BigInteger::resize(int size)
@@ -101,7 +118,7 @@ BigInteger BigInteger::mulToInt(long long c) const
 BigInteger BigInteger::mul(BigInteger const &val) const
 {
     BigInteger res(0);
-    res.sign = sign ^ sign;
+    res.sign = sign ^ val.sign;
     res.resize(nums.size() + val.getVector().size());
     for (size_t i = 0; i < nums.size(); ++i)
         for (size_t j = 0, needAdd = 0; j < val.nums.size() || needAdd; ++j)
@@ -115,36 +132,124 @@ BigInteger BigInteger::mul(BigInteger const &val) const
     return res;
 }
 
-/*BigInteger BigInteger::inverse(BigInteger m)
+BigInteger BigInteger::operator+(long long val) const
 {
-    BigInteger t(1);
-    BigInteger r(m);
-    BigInteger newT(1);
-    BigInteger newR(this->getVector());
-    BigInteger tmp(0);
-    while (newR != 0)
-    {
-        BigInteger quotitent = r / newR;
-        tmp = t - quotitent * newT;
-        t = newT;
-        newT = tmp;
+    return mulToInt(val);
+}
 
-        tmp = r - quotitent * newR;
-        r = newR;
-        newR = tmp;
-    }
-    if (r > 1)
-    {
-        return -1;
-    }
-    if (t < 0)
-        t += m;
-    return t;
-}*/
+BigInteger BigInteger::operator-(long long val) const
+{
+    return mulToInt(val);
+}
+
+BigInteger BigInteger::operator/(long long val) const
+{
+    return mulToInt(val);
+}
 
 BigInteger BigInteger::operator*(long long val) const
 {
     return mulToInt(val);
+}
+
+BigInteger BigInteger::operator+(BigInteger &val) const
+{
+}
+
+BigInteger BigInteger::operator-(BigInteger &val) const
+{
+}
+
+BigInteger BigInteger::operator/(BigInteger &val) const
+{
+}
+
+BigInteger BigInteger::operator*(BigInteger &val) const
+{
+}
+
+BigInteger BigInteger::operator+=(long long val)
+{
+    return mulToInt(val);
+}
+
+BigInteger BigInteger::operator-=(long long val)
+{
+    return mulToInt(val);
+}
+
+BigInteger BigInteger::operator/=(long long val)
+{
+    return mulToInt(val);
+}
+
+BigInteger BigInteger::operator*=(long long val)
+{
+    return mulToInt(val);
+}
+
+BigInteger BigInteger::operator+=(BigInteger &val)
+{
+}
+
+BigInteger BigInteger::operator-=(BigInteger &val)
+{
+}
+
+BigInteger BigInteger::operator/=(BigInteger &val)
+{
+}
+
+BigInteger BigInteger::operator*=(BigInteger &val)
+{
+}
+
+bool BigInteger::operator>(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator<(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator>=(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator<=(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator!=(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator==(BigInteger &val) const
+{
+}
+
+bool BigInteger::operator>(long long val) const
+{
+}
+
+bool BigInteger::operator<(long long val) const
+{
+}
+
+bool BigInteger::operator>=(long long val) const
+{
+}
+
+bool BigInteger::operator<=(long long val) const
+{
+}
+
+bool BigInteger::operator!=(long long val) const
+{
+}
+
+bool BigInteger::operator==(long long val) const
+{
 }
 
 istream &operator>>(istream &s, BigInteger b)
@@ -156,7 +261,36 @@ istream &operator>>(istream &s, BigInteger b)
 }
 ostream &operator<<(ostream &s, BigInteger b)
 {
+    if(b.sign)
+        s << "-";
     for (int i = b.getVector().size() - 1; i >= 0; i--)
         s << b.getVector()[i];
     return s;
+}
+
+BigInteger BigInteger::inverse(BigInteger m)
+{
+    BigInteger t(1);
+    BigInteger r(m);
+    BigInteger newT(1);
+    BigInteger newR(this->getVector());
+    BigInteger tmp(0);
+    while (newR != 0)
+    {
+        BigInteger quotitent = r / newR;
+        tmp = t.sub(quotitent * newT);
+        t = newT;
+        newT = tmp;
+
+        tmp = r.sub(quotitent * newR);
+        r = newR;
+        newR = tmp;
+    }
+    if (r > 1)
+    {
+        return -1;
+    }
+    if (t < 0)
+        t += m;
+    return t;
 }
