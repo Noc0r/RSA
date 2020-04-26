@@ -59,6 +59,12 @@ BigInteger::BigInteger(BigInteger const &bi) : nums(bi.nums), signum(bi.signum),
 {
 }
 
+BigInteger::~BigInteger()
+{
+    nums.clear();
+    nums.~vector();
+}
+
 vector<int> BigInteger::getVector() const
 {
     return nums;
