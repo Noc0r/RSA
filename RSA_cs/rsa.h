@@ -28,7 +28,7 @@ RSA::RSA(int l, bool (*pvmt_func)(int, BigInteger const &, int))
 {
     int q_size = l / 2;
     int p_size = l / 2 + l % 2;
-    params.e = BigInteger(5, 100000000);
+    params.e = BigInteger(65537, 10);
     do
     {
         p = genPrime(p_size, pvmt_func);

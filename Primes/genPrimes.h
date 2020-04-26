@@ -20,7 +20,7 @@ BigInteger genRand(BigInteger const &start, int l)
 
 BigInteger genPrime(int l, bool (*pvmt_func)(int, BigInteger const &, int))
 {
-    const int d = 1;
+    const int d = 5;
     BigInteger one(1, 2);
     BigInteger l_rand = one << l - 1;
     l_rand.convert(10);
