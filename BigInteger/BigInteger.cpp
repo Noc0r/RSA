@@ -93,7 +93,7 @@ bool BigInteger::isZero()
 int BigInteger::nextNumber(int final)
 {
     int temp = 0;
-    for (int i = 0; i < this->nums.size(); i++)
+    for (int i = this->nums.size() - 1; i >= 0; i--)
     {
         temp = temp * this->arifm_system_base + this->nums[i];
         nums[i] = temp / final;
@@ -154,7 +154,6 @@ BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
     {
         BigInteger res = v;
         res.convert(arifm_system_base);
-
         for (int i = 0, carry = 0; i < (int)max(nums.size(), v.nums.size()) || carry; ++i)
         {
             if (i == (int)res.nums.size())
@@ -167,7 +166,7 @@ BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
         res.convert(arifm_sys);
         return res;
     }
-    return *this - (-v);
+    return this->sub(-v, arifm_sys);
 }
 
 BigInteger BigInteger::operator-() const
@@ -215,13 +214,13 @@ BigInteger BigInteger::mulToChar(int c) const
 
 BigInteger BigInteger::mul(BigInteger const &val, int arifm_sys) const
 {
-    BigInteger res(0,val.arifm_system_base);
+    BigInteger res(0, val.arifm_system_base);
     BigInteger tmp(*this);
     tmp.convert(val.arifm_system_base);
     for (int i = val.nums.size() - 1; i >= 0; i--)
     {
         res += tmp.mulToChar(val.nums[i]);
-        if(i != 0)
+        if (i != 0)
             res = res.mulToArifmSystem();
     }
     res.signum = signum ^ val.signum;
@@ -235,7 +234,7 @@ BigInteger BigInteger::divToArifmSystem() const
     BigInteger res(*this);
     for (int i = 1; i < res.nums.size(); i++)
     {
-        res.nums[i-1] = res.nums[i];
+        res.nums[i - 1] = res.nums[i];
     }
     res.nums.pop_back();
     res.trim();
@@ -244,7 +243,7 @@ BigInteger BigInteger::divToArifmSystem() const
 
 BigInteger BigInteger::divToChar(int c) const
 {
-    if(c == arifm_system_base)
+    if (c == arifm_system_base)
         return divToArifmSystem();
     BigInteger res(*this);
     char needAdd = 0;
@@ -258,22 +257,23 @@ BigInteger BigInteger::divToChar(int c) const
     return res;
 }
 
-pair<BigInteger, BigInteger> BigInteger::divMod(BigInteger const &val, int arifm_sys) const
+pair<BigInteger, BigInteger> BigInteger::divMod(BigInteger const &denominator, int arifm_sys) const
 {
-    BigInteger res(0, arifm_sys);
+    BigInteger numerator(*this);
+    BigInteger res(0, denominator.arifm_system_base);
     res.resize(nums.size());
-    BigInteger curValue(0, arifm_sys);
-    for (int i = nums.size() - 1; i >= 0; i--)
+    BigInteger curValue(0, denominator.arifm_system_base);
+    for (int i = numerator.nums.size() - 1; i >= 0; i--)
     {
         curValue = curValue.mulToArifmSystem();
-        curValue.nums[0] = nums[i];
+        curValue.nums[0] = numerator.nums[i];
         // подбираем максимальное число x, такое что b * x <= curValue
         int x = 0;
-        int l = 0, r = arifm_sys;
+        int l = 0, r = denominator.arifm_system_base;
         while (l <= r)
         {
             int m = (l + r) >> 1;
-            BigInteger cur = val.mulToChar(m);
+            BigInteger cur = denominator.mulToChar(m);
             if (cur <= curValue)
             {
                 x = m;
@@ -283,12 +283,14 @@ pair<BigInteger, BigInteger> BigInteger::divMod(BigInteger const &val, int arifm
                 r = m - 1;
         }
         res.nums[i] = x;
-        curValue = curValue - val.mulToChar(x);
+        curValue = curValue - denominator.mulToChar(x);
     }
-    res.signum = signum ^ val.signum;
+    res.signum = signum ^ denominator.signum;
     res.trim();
     curValue.trim();
-    curValue = res.signum ? curValue + val : curValue;
+    curValue = res.signum ? curValue + denominator : curValue;
+    res.convert(arifm_sys);
+    curValue.convert(arifm_sys);
     return make_pair(res, curValue);
 }
 
@@ -321,9 +323,9 @@ BigInteger BigInteger::sub(BigInteger const &v, int arifm_sys) const
             res.convert(arifm_sys);
             return res;
         }
-        return -(v - *this);
+        return -v.sub(*this, arifm_sys);
     }
-    return *this + (-v);
+    return this->sum(-v, arifm_sys);
 }
 
 istream &operator>>(istream &s, BigInteger b)
