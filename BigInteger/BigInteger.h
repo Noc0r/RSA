@@ -7,60 +7,58 @@ using namespace std;
 class BigInteger
 {
 private:
-    vector<unsigned int> nums;
-    bool sign;
+    bool signum;
+    vector<int> nums;
+    int arifm_system_base;
+    pair<BigInteger,BigInteger> divMod(BigInteger const &val, int arifm_sys) const;
+    int compare(BigInteger const& val) const;
     void createVector(long long i);
     void createFromString(string str);
+    int nextNumber(int final);
+    BigInteger mulToArifmSystem() const;
+    BigInteger divToArifmSystem() const;
 
 public:
-    BigInteger(int i);
-    BigInteger(long long i);
+    BigInteger(int i, int arifm_sys);
+    BigInteger(long long i, int arifm_sys);
     BigInteger();
-    BigInteger(string s);
+    BigInteger(string s, int arifm_sys);
     BigInteger(BigInteger const &b);
-    BigInteger(vector<unsigned int> b);
+    BigInteger(vector<int> b, int arifm_sys);
+    int getASB() const;
+    bool getSignum() const;
+    vector<int> getVector() const;
+    void setSigned(bool sign);
     void resize(int size);
-    vector<unsigned int> getVector() const;
     void trim();
-    BigInteger inverse(BigInteger n);
-    BigInteger sum(BigInteger const &value) const;
-    BigInteger div(BigInteger const &value) const; //TO DO
-    BigInteger sub(BigInteger const &value) const; //TO DO
-    BigInteger mul(BigInteger const &value) const;
-    BigInteger mulToInt(long long c) const;
-
-    BigInteger operator+(BigInteger &val) const; //TO DO
-    BigInteger operator-(BigInteger &val) const; //TO DO
-    BigInteger operator*(BigInteger &val) const; //TO DO
-    BigInteger operator/(BigInteger &val) const; //TO DO
-    BigInteger operator+(long long val) const;   //TO DO
-    BigInteger operator-(long long val) const;   //TO DO
-    BigInteger operator*(long long val) const;
-    BigInteger operator/(long long val) const; //TO DO
-
-    BigInteger operator+=(BigInteger &val); //TO DO
-    BigInteger operator-=(BigInteger &val); //TO DO
-    BigInteger operator*=(BigInteger &val); //TO DO
-    BigInteger operator/=(BigInteger &val); //TO DO
-    BigInteger operator+=(long long val);   //TO DO
-    BigInteger operator-=(long long val);   //TO DO
-    BigInteger operator*=(long long val);
-    BigInteger operator/=(long long val); //TO DO
-
-    bool operator>(BigInteger &val) const;  //TO DO
-    bool operator<(BigInteger &val) const;  //TO DO
-    bool operator>=(BigInteger &val) const; //TO DO
-    bool operator<=(BigInteger &val) const; //TO DO
-    bool operator==(BigInteger &val) const; //TO DO
-    bool operator!=(BigInteger &val) const; //TO DO
-
-    bool operator>(long long val) const;  //TO DO
-    bool operator<(long long val) const;  //TO DO
-    bool operator>=(long long val) const; //TO DO
-    bool operator<=(long long val) const; //TO DO
-    bool operator==(long long val) const; //TO DO
-    bool operator!=(long long val) const; //TO DO
-
+    void convert(int arifmBase);
+    bool isZero();
+    BigInteger sum(BigInteger const &value, int arifmSys) const;
+    BigInteger mul(BigInteger const &value, int arifmSys) const;
+    BigInteger sub(BigInteger const &value, int arifmSys) const;
+    BigInteger div(BigInteger const &value, int arifmSys) const;
+    BigInteger mod(BigInteger const &value, int arifmSys) const;
+    BigInteger mulToChar(int c) const;
+    BigInteger divToChar(int c) const;
+    BigInteger operator+(BigInteger const &val) const;
+    BigInteger operator-(BigInteger const &val) const;
+    BigInteger operator-() const;
+    BigInteger operator*(BigInteger const &val) const;
+    BigInteger operator/(BigInteger const &val) const;
+    BigInteger operator%(BigInteger const &val) const;
+    BigInteger operator+=(BigInteger const &val);
+    BigInteger operator-=(BigInteger const &val);
+    BigInteger operator*=(BigInteger const &val);
+    BigInteger operator/=(BigInteger const &val);
+    BigInteger operator%=(BigInteger const &val);
+    bool operator<=(BigInteger const &val) const;
+    bool operator<(BigInteger const &val) const;
+    bool operator>(BigInteger const &val) const;
+    bool operator>=(BigInteger const &val) const;
+    bool operator==(BigInteger const &val) const;
+    bool operator!=(BigInteger const &val) const;
+    BigInteger operator=(BigInteger const &val);
+    friend BigInteger inverse(BigInteger a, BigInteger m);
     friend istream &operator>>(istream &s, BigInteger b);
     friend ostream &operator<<(ostream &s, BigInteger b);
 };
