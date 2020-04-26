@@ -24,7 +24,7 @@ int main()
     cout << test_mod << endl;
     r.convert(10);
     cout << r << endl;
-    RSA rsa_test1(20, &checkPrimeFerma);
+    RSA rsa_test1(20, &checkPrimeRabin);
     //RSA rsa_test2(10, &checkPrimeRabin);
     //RSA rsa_test3(10, &checkPrimeSolovei);
     BigInteger a_1 = rsa_test1.encrypt(a);

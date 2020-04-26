@@ -58,7 +58,7 @@ bool checkPrimeRabin(int len, BigInteger const &n, int dim)
             return false;
         while (!(r.getVector()[0] & 1))
         {
-            r = r >> 1;
+            r /= 2;
             s++;
         }
         BigInteger v = modPow(a, r, n);
