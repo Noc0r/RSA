@@ -40,9 +40,9 @@ public:
     pair<BigInteger, BigInteger> divMod(BigInteger const &val, int arifm_sys) const;
     BigInteger mulToChar(int c) const;
     BigInteger divToChar(int c) const;
+    BigInteger operator-() const;
     BigInteger operator+(BigInteger const &val) const;
     BigInteger operator-(BigInteger const &val) const;
-    BigInteger operator-() const;
     BigInteger operator*(BigInteger const &val) const;
     BigInteger operator/(BigInteger const &val) const;
     BigInteger operator%(BigInteger const &val) const;
@@ -60,6 +60,24 @@ public:
     bool operator==(BigInteger const &val) const;
     bool operator!=(BigInteger const &val) const;
     BigInteger operator=(BigInteger const &val);
+    BigInteger operator+(long long val) const;
+    BigInteger operator-(long long val) const;
+    BigInteger operator*(long long val) const;
+    BigInteger operator/(long long val) const;
+    BigInteger operator%(long long val) const;
+    BigInteger operator+=(long long val);
+    BigInteger operator-=(long long val);
+    BigInteger operator*=(long long val);
+    BigInteger operator/=(long long val);
+    BigInteger operator%=(long long val);
+    bool operator<=(long long val) const;
+    bool operator<(long long val) const;
+    bool operator>(long long val) const;
+    bool operator>=(long long val) const;
+    bool operator==(long long val) const;
+    bool operator!=(long long val) const;
+    BigInteger operator=(long long val);
+    friend int lejandr(BigInteger u, BigInteger v);
     friend BigInteger modPow(BigInteger const &a, BigInteger const &pow, BigInteger const &m);
     friend BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const &r,
                                 BigInteger const &r1, BigInteger const &n1, BigInteger const &n);

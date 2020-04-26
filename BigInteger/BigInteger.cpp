@@ -494,6 +494,142 @@ BigInteger BigInteger::operator>>(unsigned int k) const
     return divToArifmSystem(k);
 }
 
+bool BigInteger::operator<=(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return compare(v) >= 0;
+}
+
+bool BigInteger::operator==(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return compare(v) == 0;
+}
+
+bool BigInteger::operator!=(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return !(*this == v);
+}
+
+bool BigInteger::operator<(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return compare(v) > 0;
+}
+
+bool BigInteger::operator>=(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return !(*this < v);
+}
+
+bool BigInteger::operator>(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return !(*this <= v);
+}
+
+BigInteger BigInteger::operator=(long long val)
+{
+    BigInteger v(val, arifm_system_base);
+    if (this != &v)
+    {
+        nums.clear();
+        nums = v.nums;
+        signum = v.signum;
+        arifm_system_base = v.arifm_system_base;
+    }
+    return *this;
+}
+
+BigInteger BigInteger::operator+(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return this->sum(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator*(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return this->mul(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator-(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return this->sub(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator/(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return this->div(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator%(long long val) const
+{
+    BigInteger v(val, arifm_system_base);
+    return this->mod(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator+=(long long val)
+{
+    BigInteger v(val, arifm_system_base);
+    return *this = this->sum(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator*=(long long val)
+{
+    BigInteger v(val, arifm_system_base);
+    return *this = this->mul(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator-=(long long val)
+{
+    BigInteger v(val, arifm_system_base);
+    return *this = this->sub(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator/=(long long val)
+{
+    BigInteger v(val,arifm_system_base);
+    return *this = this->div(v, arifm_system_base);
+}
+
+BigInteger BigInteger::operator%=(long long val)
+{
+    BigInteger v(val,arifm_system_base);
+    return *this = this->mod(v, arifm_system_base);
+}
+
+int lejandr(BigInteger u, BigInteger n)
+{
+    BigInteger one(1, u.arifm_system_base);
+    int t = 1;
+    while (n > one)
+    {
+        if (u.isZero())
+            return 0;
+        if (u == one)
+            return 1;
+        BigInteger s(0, u.arifm_system_base);
+        BigInteger k = u;
+        while (k.nums[0] & 1 == 0)
+        {
+            s += one;
+            k = k / 2;
+        }
+        if (s % 2 == 1 && (n % 8 == 3 || n % 8 == 5))
+            t *= -1;
+        if (n % 4 == 3 && k % 4 == 3)
+            t *= -1;
+        u = n % k;
+        n = k;
+    }
+    return t;
+}
+
 eucl_res extendEucl(BigInteger const &a, BigInteger const &m)
 {
     BigInteger zero(0, a.getASB());
