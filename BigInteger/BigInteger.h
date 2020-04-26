@@ -46,13 +46,13 @@ public:
     BigInteger operator*(BigInteger const &val) const;
     BigInteger operator/(BigInteger const &val) const;
     BigInteger operator%(BigInteger const &val) const;
+    BigInteger operator<<(unsigned int k) const;
+    BigInteger operator>>(unsigned int k) const;
     BigInteger operator+=(BigInteger const &val);
     BigInteger operator-=(BigInteger const &val);
     BigInteger operator*=(BigInteger const &val);
     BigInteger operator/=(BigInteger const &val);
     BigInteger operator%=(BigInteger const &val);
-    BigInteger operator<<(unsigned int k);
-    BigInteger operator>>(unsigned int k);
     bool operator<=(BigInteger const &val) const;
     bool operator<(BigInteger const &val) const;
     bool operator>(BigInteger const &val) const;
@@ -61,7 +61,8 @@ public:
     bool operator!=(BigInteger const &val) const;
     BigInteger operator=(BigInteger const &val);
     friend BigInteger modPow(BigInteger const &a, BigInteger const &pow, BigInteger const &m);
-    friend BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const &r, BigInteger const &n1, BigInteger const &n);
+    friend BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const &r,
+                                BigInteger const &r1, BigInteger const &n1, BigInteger const &n);
     friend BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger const &m);
     friend istream &operator>>(istream &s, BigInteger b);
     friend ostream &operator<<(ostream &s, BigInteger b);

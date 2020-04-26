@@ -133,11 +133,11 @@ BigInteger modPow(BigInteger const &a, BigInteger const &pow, BigInteger const &
     return u;
 }
 
-BigInteger modPowMul(BigInteger const &a, BigInteger const &b,
-                     BigInteger const &r, BigInteger const &n1, BigInteger const &n)
+BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const &r,
+                     BigInteger const &r1, BigInteger const &n1, BigInteger const &n)
 {
     BigInteger t = a * b;
-    BigInteger u = (t + n * ((t * n1) % r)) / r;
+    BigInteger u = (t + n * ((t * n1) % r)) * r1;
     while (u >= n)
     {
         u -= n;
@@ -171,11 +171,11 @@ BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger co
     powBin.convert(2);
     for (int i = powBin.nums.size() - 1; i >= 0; i++)
     {
-        x1 = modPowMul(x1, x1, r, res.y, n);
+        x1 = modPowMul(x1, x1, r, res.x, res.y, n);
         if (powBin.nums[i])
-            x1 = modPowMul(x1, a1, r, res.y, n);
+            x1 = modPowMul(x1, a1, r, res.x, res.y, n);
     }
-    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, res.y, n);
+    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, res.x, res.y, n);
 }
 
 BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
@@ -485,11 +485,11 @@ BigInteger BigInteger::operator%=(BigInteger const &val)
     return *this = this->mod(val, arifm_system_base);
 }
 
-BigInteger BigInteger::operator<<(unsigned int k)
+BigInteger BigInteger::operator<<(unsigned int k) const
 {
     return mulToArifmSystem(k);
 }
-BigInteger BigInteger::operator>>(unsigned int k)
+BigInteger BigInteger::operator>>(unsigned int k) const
 {
     return divToArifmSystem(k);
 }
