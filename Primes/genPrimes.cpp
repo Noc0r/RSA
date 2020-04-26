@@ -1,3 +1,4 @@
+#pragma once
 #include "genPrimes.h"
 #include <ctime>
 

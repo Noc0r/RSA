@@ -1,5 +1,6 @@
+#pragma once
 #include "rsa.h"
-#include "Primes/genPrimes.h"
+#include "../Primes/genPrimes.h"
 
 RSA::RSA(int l, bool (*pvmt_func)(int, BigInteger, int))
 {

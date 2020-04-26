@@ -24,7 +24,6 @@ public:
     BigInteger(string s, int arifm_sys);
     BigInteger(BigInteger const &b);
     BigInteger(vector<int> b, int arifm_sys);
-    ~BigInteger();
     int getASB() const;
     bool getSignum() const;
     vector<int> getVector() const;

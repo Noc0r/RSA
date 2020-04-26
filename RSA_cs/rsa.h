@@ -1,4 +1,5 @@
-#include "BigInteger/BigInteger.h"
+#pragma once
+#include "../BigInteger/BigInteger.h"
 
 struct rsa_params
 {
