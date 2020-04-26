@@ -2,6 +2,7 @@
 #include "BigInteger.h"
 #include <iostream>
 #include <algorithm>
+
 void BigInteger::createVector(long long i)
 {
     do
@@ -379,15 +380,17 @@ ostream &operator<<(ostream &s, BigInteger b)
 
 int BigInteger::compare(BigInteger const &val) const
 {
-    if (nums.size() < val.nums.size())
+    BigInteger cpy(*this);
+    cpy.convert(val.arifm_system_base);
+    if (cpy.nums.size() < val.nums.size())
         return 1;
-    if (nums.size() > val.nums.size())
+    if (cpy.nums.size() > val.nums.size())
         return -1;
-    for (int i = nums.size() - 1; i >= 0; i--)
+    for (int i = cpy.nums.size() - 1; i >= 0; i--)
     {
-        if (nums[i] > val.nums[i])
+        if (cpy.nums[i] > val.nums[i])
             return -1;
-        if (nums[i] < val.nums[i])
+        if (cpy.nums[i] < val.nums[i])
             return 1;
     }
     return 0;
@@ -593,13 +596,13 @@ BigInteger BigInteger::operator-=(long long val)
 
 BigInteger BigInteger::operator/=(long long val)
 {
-    BigInteger v(val,arifm_system_base);
+    BigInteger v(val, arifm_system_base);
     return *this = this->div(v, arifm_system_base);
 }
 
 BigInteger BigInteger::operator%=(long long val)
 {
-    BigInteger v(val,arifm_system_base);
+    BigInteger v(val, arifm_system_base);
     return *this = this->mod(v, arifm_system_base);
 }
 
@@ -638,8 +641,8 @@ eucl_res extendEucl(BigInteger const &a, BigInteger const &m)
     BigInteger y_0(zero);
     BigInteger x_1(zero);
     BigInteger y_1(one);
-    BigInteger r_0(a);
-    BigInteger r_1(m);
+    BigInteger r_0(m);
+    BigInteger r_1(a);
     while (r_1 != zero)
     {
         BigInteger quotitent = r_0.div(r_1, a.getASB());
