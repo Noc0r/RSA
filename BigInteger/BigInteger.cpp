@@ -1,6 +1,7 @@
 #pragma once
 #include "BigInteger.h"
 #include <iostream>
+#include <algorithm>
 void BigInteger::createVector(long long i)
 {
     do
@@ -116,36 +117,65 @@ void BigInteger::convert(int newArifmBase)
     }
 }
 
-BigInteger inverse(BigInteger a, BigInteger m)
+BigInteger modPow(BigInteger const &a, BigInteger const &pow, BigInteger const &m)
 {
-    BigInteger zero(0, a.getASB());
-    BigInteger one(1, a.getASB());
-    BigInteger t(zero);
-    BigInteger r(m);
-    BigInteger newT(one);
-    BigInteger newR(a);
-    BigInteger tmp(zero);
-    int count = 0;
-    while (newR != zero)
+    BigInteger u(1, m.arifm_system_base);
+    BigInteger v(a);
+    v.convert(m.arifm_system_base);
+    BigInteger powBin(pow);
+    powBin.convert(2);
+    for (int i = 0; i < powBin.getVector().size(); i++)
     {
-        pair<BigInteger, BigInteger> quotitent = r.divMod(newR, a.getASB());
-        std::cout << count++ << std::endl;
-        tmp = t - quotitent.first * newT;
-        t = newT;
-        newT = tmp;
+        if (powBin.getVector()[i])
+            u = (u * v) % m;
+        v = (v * v) % m;
+    }
+    return u;
+}
 
-        tmp = quotitent.second;
-        r = newR;
-        newR = tmp;
-    }
-    if (r > one)
+BigInteger modPowMul(BigInteger const &a, BigInteger const &b,
+                     BigInteger const &r, BigInteger const &n1, BigInteger const &n)
+{
+    BigInteger t = a * b;
+    BigInteger u = (t + n * ((t * n1) % r)) / r;
+    while (u >= n)
     {
-        one.setSigned(true);
-        return one;
+        u -= n;
     }
-    if (t.getSignum())
-        t += m;
-    return t;
+    return u;
+}
+
+BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger const &n)
+{
+    int l = 1, up = n.arifm_system_base;
+    //Find k(up)
+    while (BigInteger(1, a.arifm_system_base).mulToArifmSystem(up) < n)
+    {
+        l = up;
+        up *= n.arifm_system_base;
+    }
+    while (l + 1 <= up)
+    {
+        int m = (l + up) >> 1;
+        if (BigInteger(1, a.arifm_system_base).mulToArifmSystem(m) > n)
+            up = m;
+        else
+            l = m;
+    }
+    //modPow
+    BigInteger r = BigInteger(1, a.arifm_system_base).mulToArifmSystem(up);
+    BigInteger a1 = (a * r) % n;
+    BigInteger x1 = r % n;
+    BigInteger n1(1, n.arifm_system_base);
+    BigInteger powBin(pow);
+    powBin.convert(2);
+    for (int i = powBin.nums.size() - 1; i >= 0; i++)
+    {
+        x1 = modPowMul(x1, x1, r, n1, n);
+        if (powBin.nums[i])
+            x1 = modPowMul(x1, a1, r, n1, n);
+    }
+    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, n1, n);
 }
 
 BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
@@ -154,14 +184,14 @@ BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
     {
         BigInteger res = v;
         res.convert(arifm_system_base);
-        for (int i = 0, carry = 0; i < (int)max(nums.size(), v.nums.size()) || carry; ++i)
+        for (int i = 0, carry = 0; i < (int)max(nums.size(), res.nums.size()) || carry; ++i)
         {
             if (i == (int)res.nums.size())
                 res.nums.push_back(0);
             res.nums[i] += carry + (i < (int)nums.size() ? nums[i] : 0);
-            carry = res.nums[i] >= arifm_sys;
+            carry = res.nums[i] >= arifm_system_base;
             if (carry)
-                res.nums[i] -= arifm_sys;
+                res.nums[i] -= arifm_system_base;
         }
         res.convert(arifm_sys);
         return res;
@@ -181,15 +211,13 @@ void BigInteger::resize(int size)
     nums.resize(size);
 }
 
-BigInteger BigInteger::mulToArifmSystem() const
+BigInteger BigInteger::mulToArifmSystem(unsigned int k) const
 {
-    BigInteger res(*this);
-    res.nums.push_back(0);
-    for (int i = res.nums.size() - 1; i > 0; i--)
-    {
-        res.nums[i] = res.nums[i - 1];
-    }
-    res.nums[0] = 0;
+    vector<int> res_vec(k);
+    fill(res_vec.begin(), res_vec.end(), 0);
+    res_vec.insert(res_vec.end(), nums.begin(), nums.end());
+    BigInteger res(res_vec, arifm_system_base);
+    res.signum = signum;
     res.trim();
     return res;
 }
@@ -197,7 +225,7 @@ BigInteger BigInteger::mulToArifmSystem() const
 BigInteger BigInteger::mulToChar(int c) const
 {
     if (c == arifm_system_base)
-        return mulToArifmSystem();
+        return mulToArifmSystem(1);
     BigInteger res(*this);
     res.nums.push_back(0);
     char needAdd = 0;
@@ -221,7 +249,7 @@ BigInteger BigInteger::mul(BigInteger const &val, int arifm_sys) const
     {
         res += tmp.mulToChar(val.nums[i]);
         if (i != 0)
-            res = res.mulToArifmSystem();
+            res = res.mulToArifmSystem(1);
     }
     res.signum = signum ^ val.signum;
     res.trim();
@@ -229,22 +257,20 @@ BigInteger BigInteger::mul(BigInteger const &val, int arifm_sys) const
     return res;
 }
 
-BigInteger BigInteger::divToArifmSystem() const
+BigInteger BigInteger::divToArifmSystem(unsigned int k) const
 {
-    BigInteger res(*this);
-    for (int i = 1; i < res.nums.size(); i++)
-    {
-        res.nums[i - 1] = res.nums[i];
-    }
-    res.nums.pop_back();
-    res.trim();
+    if (k > nums.size())
+        return BigInteger(0, arifm_system_base);
+    vector<int> res_vec(nums.begin() + k, nums.end());
+    BigInteger res(res_vec, arifm_system_base);
+    res.signum = signum;
     return res;
 }
 
 BigInteger BigInteger::divToChar(int c) const
 {
     if (c == arifm_system_base)
-        return divToArifmSystem();
+        return divToArifmSystem(1);
     BigInteger res(*this);
     char needAdd = 0;
     for (int i = res.nums.size() - 1; i >= 0; i--)
@@ -265,7 +291,7 @@ pair<BigInteger, BigInteger> BigInteger::divMod(BigInteger const &denominator, i
     BigInteger curValue(0, denominator.arifm_system_base);
     for (int i = numerator.nums.size() - 1; i >= 0; i--)
     {
-        curValue = curValue.mulToArifmSystem();
+        curValue = curValue.mulToArifmSystem(1);
         curValue.nums[0] = numerator.nums[i];
         // подбираем максимальное число x, такое что b * x <= curValue
         int x = 0;
@@ -457,4 +483,40 @@ BigInteger BigInteger::operator/=(BigInteger const &val)
 BigInteger BigInteger::operator%=(BigInteger const &val)
 {
     return *this = this->mod(val, arifm_system_base);
+}
+
+BigInteger BigInteger::operator<<(unsigned int k)
+{
+    return mulToArifmSystem(k);
+}
+BigInteger BigInteger::operator>>(unsigned int k)
+{
+    return divToArifmSystem(k);
+}
+
+eucl_res extendEucl(BigInteger const &a, BigInteger const &m)
+{
+    BigInteger zero(0, a.getASB());
+    BigInteger one(1, a.getASB());
+    BigInteger x_0(one);
+    BigInteger y_0(zero);
+    BigInteger x_1(zero);
+    BigInteger y_1(one);
+    BigInteger r_0(a);
+    BigInteger r_1(m);
+    while (r_1 != zero)
+    {
+        BigInteger quotitent = r_0.div(r_1, a.getASB());
+        BigInteger tmp = r_0 - quotitent * r_1;
+        r_0 = r_1;
+        r_1 = tmp;
+        tmp = x_0 - quotitent * x_1;
+        x_0 = x_1;
+        x_1 = tmp;
+        tmp = y_0 - quotitent * y_1;
+        y_0 = y_1;
+        y_1 = tmp;
+    }
+    eucl_res res = {r_0, x_0, y_0};
+    return res;
 }

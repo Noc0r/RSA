@@ -10,13 +10,12 @@ private:
     bool signum;
     vector<int> nums;
     int arifm_system_base;
-    pair<BigInteger,BigInteger> divMod(BigInteger const &val, int arifm_sys) const;
-    int compare(BigInteger const& val) const;
+    int compare(BigInteger const &val) const;
     void createVector(long long i);
     void createFromString(string str);
     int nextNumber(int final);
-    BigInteger mulToArifmSystem() const;
-    BigInteger divToArifmSystem() const;
+    BigInteger mulToArifmSystem(unsigned int k) const;
+    BigInteger divToArifmSystem(unsigned int k) const;
 
 public:
     BigInteger(int i, int arifm_sys);
@@ -38,6 +37,7 @@ public:
     BigInteger sub(BigInteger const &value, int arifmSys) const;
     BigInteger div(BigInteger const &value, int arifmSys) const;
     BigInteger mod(BigInteger const &value, int arifmSys) const;
+    pair<BigInteger, BigInteger> divMod(BigInteger const &val, int arifm_sys) const;
     BigInteger mulToChar(int c) const;
     BigInteger divToChar(int c) const;
     BigInteger operator+(BigInteger const &val) const;
@@ -51,6 +51,8 @@ public:
     BigInteger operator*=(BigInteger const &val);
     BigInteger operator/=(BigInteger const &val);
     BigInteger operator%=(BigInteger const &val);
+    BigInteger operator<<(unsigned int k);
+    BigInteger operator>>(unsigned int k);
     bool operator<=(BigInteger const &val) const;
     bool operator<(BigInteger const &val) const;
     bool operator>(BigInteger const &val) const;
@@ -58,7 +60,18 @@ public:
     bool operator==(BigInteger const &val) const;
     bool operator!=(BigInteger const &val) const;
     BigInteger operator=(BigInteger const &val);
-    friend BigInteger inverse(BigInteger a, BigInteger m);
+    friend BigInteger modPow(BigInteger const &a, BigInteger const &pow, BigInteger const &m);
+    friend BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const &r, BigInteger const &n1, BigInteger const &n);
+    friend BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger const &m);
     friend istream &operator>>(istream &s, BigInteger b);
     friend ostream &operator<<(ostream &s, BigInteger b);
 };
+
+typedef struct Euclid_result
+{
+    BigInteger d;
+    BigInteger x;
+    BigInteger y;
+} eucl_res;
+
+eucl_res extendEucl(BigInteger const &a, BigInteger const &m);
