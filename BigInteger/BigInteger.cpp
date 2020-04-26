@@ -30,7 +30,7 @@ BigInteger::BigInteger(long long i, int arifm_sys) : signum(false), arifm_system
     createVector(i);
 }
 
-BigInteger::BigInteger(vector<int> vec, int arifm_sys) : nums(vec), signum(false), arifm_system_base(arifm_sys)
+BigInteger::BigInteger(vector<long long> vec, int arifm_sys) : nums(vec), signum(false), arifm_system_base(arifm_sys)
 {
 }
 
@@ -60,7 +60,7 @@ BigInteger::BigInteger(BigInteger const &bi) : nums(bi.nums), signum(bi.signum),
 {
 }
 
-vector<int> BigInteger::getVector() const
+vector<long long> BigInteger::getVector() const
 {
     return nums;
 }
@@ -94,7 +94,7 @@ bool BigInteger::isZero()
 
 int BigInteger::nextNumber(int final)
 {
-    int temp = 0;
+    long long temp = 0;
     for (int i = this->nums.size() - 1; i >= 0; i--)
     {
         temp = temp * this->arifm_system_base + this->nums[i];
@@ -108,7 +108,7 @@ void BigInteger::convert(int newArifmBase)
 {
     if (newArifmBase != arifm_system_base)
     {
-        vector<int> b;
+        vector<long long> b;
         do
         {
             b.push_back(this->nextNumber(newArifmBase));
@@ -214,7 +214,7 @@ void BigInteger::resize(int size)
 
 BigInteger BigInteger::mulToArifmSystem(unsigned int k) const
 {
-    vector<int> res_vec(k);
+    vector<long long> res_vec(k);
     fill(res_vec.begin(), res_vec.end(), 0);
     res_vec.insert(res_vec.end(), nums.begin(), nums.end());
     BigInteger res(res_vec, arifm_system_base);
@@ -262,7 +262,7 @@ BigInteger BigInteger::divToArifmSystem(unsigned int k) const
 {
     if (k > nums.size())
         return BigInteger(0, arifm_system_base);
-    vector<int> res_vec(nums.begin() + k, nums.end());
+    vector<long long> res_vec(nums.begin() + k, nums.end());
     BigInteger res(res_vec, arifm_system_base);
     res.signum = signum;
     return res;
@@ -366,15 +366,10 @@ istream &operator>>(istream &s, BigInteger b)
 
 ostream &operator<<(ostream &s, BigInteger b)
 {
-    string str = b.signum ? "-" : "";
-    for (int i = b.nums.size() - 1; i >= 0; i--)
-    {
-        int shift = 0;
-        if (b.nums[i] >= 10)
-            shift += 7;
-        str += (char)('0' + b.nums[i] + shift);
-    }
-    s << str;
+    if (b.signum)
+        s << "-";
+    for (int i = b.getVector().size() - 1; i >= 0; i--)
+        s << b.getVector()[i];
     return s;
 }
 
@@ -618,7 +613,7 @@ int lejandr(BigInteger u, BigInteger n)
             return 1;
         BigInteger s(0, u.arifm_system_base);
         BigInteger k = u;
-        while (k.nums[0] & 1 == 0)
+        while ((k.nums[0] & 1) == 0)
         {
             s += one;
             k = k / 2;
@@ -641,18 +636,17 @@ eucl_res extendEucl(BigInteger const &a, BigInteger const &m)
     BigInteger y_0(zero);
     BigInteger x_1(zero);
     BigInteger y_1(one);
-    BigInteger r_0(m);
-    BigInteger r_1(a);
+    BigInteger r_0(a);
+    BigInteger r_1(m);
     while (r_1 != zero)
     {
-        BigInteger quotitent = r_0.div(r_1, a.getASB());
-        BigInteger tmp = r_0 - quotitent * r_1;
+        pair<BigInteger, BigInteger> quotitent = r_0.divMod(r_1, a.getASB());
         r_0 = r_1;
-        r_1 = tmp;
-        tmp = x_0 - quotitent * x_1;
+        r_1 = quotitent.second;
+        BigInteger tmp = x_0 - quotitent.first * x_1;
         x_0 = x_1;
         x_1 = tmp;
-        tmp = y_0 - quotitent * y_1;
+        tmp = y_0 - quotitent.first * y_1;
         y_0 = y_1;
         y_1 = tmp;
     }

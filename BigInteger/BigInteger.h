@@ -8,7 +8,7 @@ class BigInteger
 {
 private:
     bool signum;
-    vector<int> nums;
+    vector<long long> nums;
     int arifm_system_base;
     int compare(BigInteger const &val) const;
     void createVector(long long i);
@@ -23,10 +23,10 @@ public:
     BigInteger();
     BigInteger(string s, int arifm_sys);
     BigInteger(BigInteger const &b);
-    BigInteger(vector<int> b, int arifm_sys);
+    BigInteger(vector<long long> b, int arifm_sys);
     int getASB() const;
     bool getSignum() const;
-    vector<int> getVector() const;
+    vector<long long> getVector() const;
     void setSigned(bool sign);
     void resize(int size);
     void trim();

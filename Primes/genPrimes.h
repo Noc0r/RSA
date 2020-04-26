@@ -14,6 +14,7 @@ BigInteger genRand(BigInteger const &start, int l)
     for (int i = 1; i < l; i++)
         if (rand() % 2)
             random += start << i;
+    random.convert(10);
     return random;
 }
 
@@ -22,12 +23,11 @@ BigInteger genPrime(int l, bool (*pvmt_func)(int, BigInteger const &, int))
     const int d = 1;
     BigInteger one(1, 2);
     BigInteger l_rand = one << l - 1;
+    l_rand.convert(10);
     BigInteger n = l_rand + genRand(one, l - 1);
-    n.convert(100000000);
     while (!pvmt_func(l, n, d))
     {
         n = l_rand + genRand(one, l - 1);
-        n.convert(100000000);
     }
     return n;
 }
@@ -38,7 +38,6 @@ bool checkPrimeFerma(int len, BigInteger const &n, int dim)
     for (int i = 0; i < dim; i++)
     {
         BigInteger a = genRand(one, len);
-        a.convert(n.getASB());
         eucl_res res = extendEucl(a, n);
         if (res.d != one || modPow(a, n - one, n) != one)
             return false;
@@ -54,8 +53,8 @@ bool checkPrimeRabin(int len, BigInteger const &n, int dim)
         BigInteger a = genRand(one, len);
         eucl_res res = extendEucl(a, n);
         int s = 0;
-        BigInteger r = n - one;
-        if (res.d != one)
+        BigInteger r = n - 1;
+        if (res.d != 1)
             return false;
         while (!(r.getVector()[0] & 1))
         {
@@ -63,13 +62,12 @@ bool checkPrimeRabin(int len, BigInteger const &n, int dim)
             s++;
         }
         BigInteger v = modPow(a, r, n);
-        if (v == one)
+        if (v == 1)
             continue;
-
         bool isCorrect = false;
         for (int i = 0; i < s; i++)
         {
-            if (v == -one)
+            if (v == -1)
             {
                 isCorrect = true;
                 break;
@@ -88,9 +86,8 @@ bool checkPrimeSolovei(int len, BigInteger const &n, int dim)
     for (int i = 0; i < dim; i++)
     {
         BigInteger a = genRand(one, len);
-        a.convert(n.getASB());
         eucl_res res = extendEucl(a, n);
-        if (res.d != one || modPow(a, (n - one) / 2, n) != lejandr(a, n))
+        if (res.d != 1 || modPow(a, (n - 1) / 2, n) != lejandr(a, n))
             return false;
     }
     return true;

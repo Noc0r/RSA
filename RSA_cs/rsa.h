@@ -28,21 +28,23 @@ RSA::RSA(int l, bool (*pvmt_func)(int, BigInteger const &, int))
 {
     int q_size = l / 2;
     int p_size = l / 2 + l % 2;
-    params.e = BigInteger(5, 2);
+    params.e = BigInteger(5, 100000000);
     do
     {
         p = genPrime(p_size, pvmt_func);
         q = genPrime(q_size, pvmt_func);
     } while (p == q || extendEucl(p - 1, params.e).d != 1 || extendEucl(q - 1, params.e).d != 1);
-    p.convert(10);
-    q.convert(10);
-    params.e.convert(10);
     params.N = p * q;
     eucl_res inv = extendEucl(p, q);
     p_inv = (inv.x + q) % q;
     q_inv = (inv.y + p) % p;
     BigInteger phi = (p - 1) * (q - 1);
     params.d = (extendEucl(params.e, phi).x + phi) % phi;
+}
+
+rsa_params RSA::getParams() const
+{
+    return params;
 }
 
 BigInteger RSA::encrypt(BigInteger x)
