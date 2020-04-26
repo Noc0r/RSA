@@ -166,16 +166,16 @@ BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger co
     BigInteger r = BigInteger(1, a.arifm_system_base).mulToArifmSystem(up);
     BigInteger a1 = (a * r) % n;
     BigInteger x1 = r % n;
-    BigInteger n1(1, n.arifm_system_base);
+    eucl_res res = extendEucl(r, n);
     BigInteger powBin(pow);
     powBin.convert(2);
     for (int i = powBin.nums.size() - 1; i >= 0; i++)
     {
-        x1 = modPowMul(x1, x1, r, n1, n);
+        x1 = modPowMul(x1, x1, r, res.y, n);
         if (powBin.nums[i])
-            x1 = modPowMul(x1, a1, r, n1, n);
+            x1 = modPowMul(x1, a1, r, res.y, n);
     }
-    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, n1, n);
+    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, res.y, n);
 }
 
 BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
