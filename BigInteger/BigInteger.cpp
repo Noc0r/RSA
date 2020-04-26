@@ -146,11 +146,15 @@ BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const 
     return u;
 }
 
-BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger const &n)
+BigInteger modPowMontg(BigInteger const &a_c, BigInteger const &pow, BigInteger const &n_c)
 {
+    BigInteger n(n_c);
+    BigInteger a(a_c);
+    n.convert(2);
+    a.convert(n.getASB());
     int l = 1, up = n.arifm_system_base;
     //Find k(up)
-    while (BigInteger(1, a.arifm_system_base).mulToArifmSystem(up) < n)
+    while (BigInteger(1, n.arifm_system_base).mulToArifmSystem(up) < n)
     {
         l = up;
         up *= n.arifm_system_base;
@@ -158,25 +162,27 @@ BigInteger modPowMontg(BigInteger const &a, BigInteger const &pow, BigInteger co
     while (l + 1 <= up)
     {
         int m = (l + up) >> 1;
-        if (BigInteger(1, a.arifm_system_base).mulToArifmSystem(m) > n)
+        if (BigInteger(1, n.arifm_system_base).mulToArifmSystem(m) > n)
             up = m;
         else
-            l = m;
+            l = m + 1;
     }
     //modPow
-    BigInteger r = BigInteger(1, a.arifm_system_base).mulToArifmSystem(up);
-    BigInteger a1 = (a * r) % n;
+    BigInteger r = BigInteger(1, n.arifm_system_base).mulToArifmSystem(up);
+    BigInteger a1 = (a.mulToArifmSystem(up)) % n;
     BigInteger x1 = r % n;
     eucl_res res = extendEucl(r, n);
     BigInteger powBin(pow);
     powBin.convert(2);
-    for (int i = powBin.nums.size() - 1; i >= 0; i++)
+    for (int i = powBin.nums.size() - 1; i >= 0; i--)
     {
         x1 = modPowMul(x1, x1, r, res.x, res.y, n);
         if (powBin.nums[i])
             x1 = modPowMul(x1, a1, r, res.x, res.y, n);
     }
-    return modPowMul(x1, BigInteger(1, n.arifm_system_base), r, res.x, res.y, n);
+    BigInteger result = modPowMul(x1, BigInteger(1, n.arifm_system_base), r, res.x, res.y, n);
+    result.convert(n_c.getASB());
+    return result;
 }
 
 BigInteger BigInteger::sum(BigInteger const &v, int arifm_sys) const
