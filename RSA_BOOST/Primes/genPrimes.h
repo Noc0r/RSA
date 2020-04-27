@@ -82,7 +82,17 @@ cpp_int modPowMontg(cpp_int const &a_c, cpp_int const &pow, cpp_int const &n_c)
 }
 
 int lejandr(cpp_int u, cpp_int n)
-{
+{ 
+    /*
+    	
+Rules To Find Legendre Symbol
+(a/n) = (b/n) if a = b mod n.
+(1/n) = 1 and (0/n) = 0.
+(2m/n) = (m/n) if n = ±1 mod 8. Otherwise (2m/n) = -(m/n).
+(Quadratic reciprocity) 
+If m and n are both odd, then (m/n) = (n/m) unless both m and n are congruent to 3 mod 4,
+in which case (m/n) = -(n/m).
+    */
     int t = 1;
     while (n > 1)
     {
