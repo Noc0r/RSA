@@ -15,7 +15,7 @@ int main()
     cout << (a.div(b, 10)) << endl;
     eucl_res res = extendEucl(a, b);
     cout << res.d << " " << res.x << " " << res.y << endl;
-    BigInteger r = genPrime(20, &checkPrimeSolovei);
+    BigInteger r = genPrime(100, &checkPrimeSolovei);
     BigInteger test_pow = modPow(b, a, BigInteger(5, 10));
     BigInteger test_powM = modPowMontg(b, a, BigInteger(5, 10));
     BigInteger test_mod = BigInteger(-115, 10) % BigInteger(288, 10);
@@ -24,7 +24,7 @@ int main()
     cout << test_mod << endl;
     r.convert(10);
     cout << r << endl;
-    RSA rsa_test1(20, &checkPrimeRabin);
+    RSA rsa_test1(150, &checkPrimeRabin);
     //RSA rsa_test2(10, &checkPrimeRabin);
     //RSA rsa_test3(10, &checkPrimeSolovei);
     BigInteger a_1 = rsa_test1.encrypt(a);

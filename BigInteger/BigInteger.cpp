@@ -138,12 +138,8 @@ BigInteger modPowMul(BigInteger const &a, BigInteger const &b, BigInteger const 
                      BigInteger const &r1, BigInteger const &n1, BigInteger const &n)
 {
     BigInteger t = a * b;
-    BigInteger u = (t + n * ((t * n1) % r)) * r1;
-    while (u >= n)
-    {
-        u -= n;
-    }
-    return u;
+    BigInteger u = (t + n * ((t * n1) % r)) * r1;// деление на r?!
+    return u % n;
 }
 
 BigInteger modPowMontg(BigInteger const &a_c, BigInteger const &pow, BigInteger const &n_c)
@@ -609,22 +605,21 @@ BigInteger BigInteger::operator%=(long long val)
 
 int lejandr(BigInteger u, BigInteger n)
 {
-    BigInteger one(1, u.arifm_system_base);
     int t = 1;
-    while (n > one)
+    while (n > 1)
     {
         if (u.isZero())
             return 0;
-        if (u == one)
-            return 1;
-        BigInteger s(0, u.arifm_system_base);
+        if (u == 1)
+            return t;
+        int s=0;
         BigInteger k = u;
         while ((k.nums[0] & 1) == 0)
         {
-            s += one;
+            s++;
             k = k / 2;
         }
-        if (s % 2 == 1 && (n % 8 == 3 || n % 8 == 5))
+        if (s % 2 == 1 && !(n % 8 == 1 || n % 8 == 7))
             t *= -1;
         if (n % 4 == 3 && k % 4 == 3)
             t *= -1;

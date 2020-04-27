@@ -8,38 +8,40 @@ bool checkPrimeFerma(int l, BigInteger const &n, int d);
 bool checkPrimeRabin(int l, BigInteger const &n, int d);
 bool checkPrimeSolovei(int l, BigInteger const &n, int d);
 
-BigInteger genRand(BigInteger const &start, int l)
+BigInteger genRand(int l)
 {
-    BigInteger random(start);
-    for (int i = 1; i < l; i++)
+    string str = "1";
+    for (int i = 1; i < l - 1; i++)
         if (rand() % 2)
-            random += start << i;
+            str += "1";
+        else
+            str += "0";
+    str += "1";
+    BigInteger random(str, 2);
     random.convert(10);
     return random;
 }
 
 BigInteger genPrime(int l, bool (*pvmt_func)(int, BigInteger const &, int))
 {
-    const int d = 5;
-    BigInteger one(1, 2);
-    BigInteger l_rand = one << l - 1;
-    l_rand.convert(10);
-    BigInteger n = l_rand + genRand(one, l - 1);
+    const int d = 100;
+    int i = 0;
+    BigInteger n = genRand(l);
     while (!pvmt_func(l, n, d))
     {
-        n = l_rand + genRand(one, l - 1);
+        cout << i++ << ": " << n << endl;
+        n = genRand(l);
     }
     return n;
 }
 
 bool checkPrimeFerma(int len, BigInteger const &n, int dim)
 {
-    BigInteger one(1, 2);
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(one, len);
+        BigInteger a = genRand(len - 1);
         eucl_res res = extendEucl(a, n);
-        if (res.d != one || modPow(a, n - one, n) != one)
+        if (res.d != 1 || modPow(a, n - 1, n) != 1)
             return false;
     }
     return true;
@@ -47,27 +49,26 @@ bool checkPrimeFerma(int len, BigInteger const &n, int dim)
 
 bool checkPrimeRabin(int len, BigInteger const &n, int dim)
 {
-    BigInteger one(1, 2);
+    int s = 0;
+    BigInteger r = n - 1;
+    while (!(r.getVector()[0] & 1))
+    {
+        r /= 2;
+        s++;
+    }
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(one, len);
+        BigInteger a = genRand(len - 1);
         eucl_res res = extendEucl(a, n);
-        int s = 0;
-        BigInteger r = n - 1;
         if (res.d != 1)
             return false;
-        while (!(r.getVector()[0] & 1))
-        {
-            r /= 2;
-            s++;
-        }
         BigInteger v = modPow(a, r, n);
         if (v == 1)
             continue;
         bool isCorrect = false;
         for (int i = 0; i < s; i++)
         {
-            if (v == -1)
+            if (v == -1 || v == n - 1)
             {
                 isCorrect = true;
                 break;
@@ -82,13 +83,15 @@ bool checkPrimeRabin(int len, BigInteger const &n, int dim)
 
 bool checkPrimeSolovei(int len, BigInteger const &n, int dim)
 {
-    BigInteger one(1, 2);
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(one, len);
+        BigInteger a = genRand(len - 1);
         eucl_res res = extendEucl(a, n);
-        if (res.d != 1 || modPow(a, (n - 1) / 2, n) != lejandr(a, n))
+        BigInteger b = (modPow(a, (n - 1) / 2, n) - lejandr(a, n));
+        if (res.d != 1 || (b != 0 && b != n))
+        {
             return false;
+        }
     }
     return true;
 }
