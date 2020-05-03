@@ -22,6 +22,16 @@ BigInteger genRand(int l)
     return random;
 }
 
+BigInteger genRandMod(int l,BigInteger const& n)
+{
+    BigInteger a;
+    do
+    {
+        a = genRand(l+1)%n;
+    } while (a==0);
+    return a;
+}
+
 BigInteger genPrime(int l, bool (*pvmt_func)(int, BigInteger const &, int))
 {
     const int d = 100;
@@ -39,7 +49,7 @@ bool checkPrimeFerma(int len, BigInteger const &n, int dim)
 {
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(len - 1);
+        BigInteger a = genRandMod(len,n);
         eucl_res res = extendEucl(a, n);
         if (res.d != 1 || modPow(a, n - 1, n) != 1)
             return false;
@@ -58,7 +68,7 @@ bool checkPrimeRabin(int len, BigInteger const &n, int dim)
     }
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(len - 1);
+        BigInteger a = genRandMod(len,n);
         eucl_res res = extendEucl(a, n);
         if (res.d != 1)
             return false;
@@ -85,7 +95,7 @@ bool checkPrimeSolovei(int len, BigInteger const &n, int dim)
 {
     for (int i = 0; i < dim; i++)
     {
-        BigInteger a = genRand(len - 1);
+        BigInteger a = genRandMod(len,n);
         eucl_res res = extendEucl(a, n);
         BigInteger b = (modPow(a, (n - 1) / 2, n) - lejandr(a, n));
         if (res.d != 1 || (b != 0 && b != n))

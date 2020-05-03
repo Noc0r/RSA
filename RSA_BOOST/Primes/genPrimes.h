@@ -151,6 +151,16 @@ cpp_int genRand(int l)
     return res;
 }
 
+cpp_int genRandMod(int l,cpp_int const& n)
+{
+    cpp_int a;
+    do
+    {
+        a = genRand(l+1)%n;
+    } while (a==0);
+    return a;
+}
+
 cpp_int genPrime(int l, bool (*pvmt_func)(int, cpp_int const &, int))
 {
     const int d = 100;
@@ -168,7 +178,7 @@ bool checkPrimeFerma(int len, cpp_int const &n, int dim)
 {
     for (int i = 0; i < dim; i++)
     {
-        cpp_int a = genRand(len - 1);
+        cpp_int a = genRandMod(len, n);
         eucl_res res = extendEucl(a, n);
         if (res.d != 1 || modPow(a, n - 1, n) != 1)
         {
@@ -193,7 +203,7 @@ bool checkPrimeRabin(int len, cpp_int const &n, int dim)
     }
     for (int i = 0; i < dim; i++)
     {
-        cpp_int a = genRand(len - 1);
+        cpp_int a = genRandMod(len, n);
         eucl_res res = extendEucl(a, n);
         if (res.d != 1)
             return false;
@@ -220,7 +230,7 @@ bool checkPrimeSolovei(int len, cpp_int const &n, int dim)
 {
     for (int i = 0; i < dim; i++)
     {
-        cpp_int a = genRand(len - 1);
+        cpp_int a = genRandMod(len, n);
         eucl_res res = extendEucl(a, n);
         cpp_int b = (modPow(a, (n - 1) / 2, n) - lejandr(a, n));
         if (res.d != 1 || (b != 0 && b != n))
